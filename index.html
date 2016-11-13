@@ -16,11 +16,12 @@
         p += 3;
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
         ctx.fillStyle = "#ff0000";
         ctx.fillRect(p,p,128,128);
       }
       
-      setInterval( Draw, 1000 );
+      setInterval( Draw, 100 );
     </script>
   </body>
 </html>
