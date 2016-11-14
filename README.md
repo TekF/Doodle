@@ -1,3 +1,3 @@
 # Doodle
 
-[Run](https://TekF.github.com/Doodle)
+[Run](http://TekF.github.io/Doodle)
