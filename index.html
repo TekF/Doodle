@@ -23,17 +23,18 @@
       function Draw()
       {
         p += 3;
-        var status = document.getElementById("status");
-        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, c.width, c.height);
         ctx.fillStyle = "#ff0000";
         ctx.fillRect(p,p,128,128);
       }
       
       var encoder = new GIFEncoder();
       encoder.setRepeat(0); //auto-loop
-      encoder.setDelay(500);
+      encoder.setDelay(100);
       console.log(encoder.start());
 
+      var status = document.getElementById("status");
       status.innerHTML = "Generating...";
       for ( i=0; i < 20; i++ )
       {
