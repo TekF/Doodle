@@ -27,3 +27,4 @@ proj structure:
 * \<whatever\>.fx
   * shader code
 
+But what about rendering generated meshes?
