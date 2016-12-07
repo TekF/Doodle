@@ -2,6 +2,8 @@
 
 [Run](http://TekF.github.io/Doodle)
 
+---
+
 For offline gif/still rendering of HTML5 things. e.g.:
 * monte-carlo path tracing shader for complex/unrestricted scenes
 * 3D models
@@ -11,9 +13,8 @@ For offline gif/still rendering of HTML5 things. e.g.:
 These things can then be polished up for interactive realtime use, or just left as gifs.
 
 ---
----
 
-For ray-marching
+Possible User/Backend approach for ray-marching:
 
 * utils/render.js (calling things in /utils/)
   * web page contents - create all in js
@@ -34,3 +35,7 @@ For ray-marching
   * number of frames (code should disable gif render if 1 frame, maybe 0 frames = realtime only)
 * \<whatever\>.fx
   * shader code
+
+Though this locks us into 1 way of doing things, and probably trips us up later...
+However, we could then just call different scripts to switch from shader render -> model -> HTML5 / whatever... hmm...
+
