@@ -14,6 +14,8 @@ These things can then be polished up for interactive realtime use, or just left 
 
 ---
 
+Put everything into utility functions => can have multiple htmls for different doodles.
+
 Possible User/Backend approach for ray-marching:
 
 * utils/render.js (calling things in /utils/)
@@ -29,7 +31,7 @@ Possible User/Backend approach for ray-marching:
   * empty web page
   * resolution
   * number of buffers
-  * which shader to run on which buffer
+  * which shader to run on which buffer (maybe inlined)
   * shader input textures/buffers
   * frame rate
   * number of frames (code should disable gif render if 1 frame, maybe 0 frames = realtime only)
