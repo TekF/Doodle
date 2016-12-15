@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
+	<meta charset="UTF-8">
     <title>Doodle</title>
   </head>
   <body>
    
     <canvas id="myCanvas" width="256" height="256" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
-    <p id="status">Initialising...</p>
+    <p id="status"></p>
     
     <img id="image">
 
@@ -16,17 +17,31 @@
     <script src="jsgif/GIFEncoder.js"></script>
 
     <script>
-      var p = 0;
+      var plum = document.getElementById("status");
+	  plum.innerHTML = "Initialising...";
+
+	  var numFrames = 10;
+	  
+	  var frame = 0;
       var c = document.getElementById("myCanvas");
       var ctx = c.getContext("2d");
       
       function Draw()
       {
-        p += 3;
+		var p = 3*frame;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, c.width, c.height);
         ctx.fillStyle = "#ff0000";
         ctx.fillRect(p,p,128,128);
+		
+        console.log(encoder.addFrame(ctx));
+		
+		frame++;
+/*		if ( frame < numFrames )
+		{
+		this breaks gif encoding - probably because it's on another thread => we probably don't need this because single thread should wait
+			window.requestAnimationFrame(Draw);
+		}*/
       }
       
       var encoder = new GIFEncoder();
@@ -34,16 +49,15 @@
       encoder.setDelay(100);
       console.log(encoder.start());
 
-      var status = document.getElementById("status");
-      status.innerHTML = "Generating...";
-      for ( i=0; i < 20; i++ )
-      {
-        Draw();
-        console.log(encoder.addFrame(ctx));
-      }
+      plum.innerHTML = "Generating...";
+
+	  while( frame < numFrames )
+	  {
+		Draw();
+	  }
       
       encoder.finish();
-      status.innerHTML = "Done.";
+      plum.innerHTML = "Done.";
       document.getElementById('image').src = 'data:image/gif;base64,'+encode64(encoder.stream().getData())
     </script>
   </body>

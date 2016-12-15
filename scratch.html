@@ -41,25 +41,9 @@ function attributeSetFloats(gl, prog, attr_name, rsize, arr) {
 var frame = 0;
 
 function draw() {
-	try {
-		var gl = document.getElementById("webgl")
-			.getContext("experimental-webgl");
-		if (!gl) { throw "x"; }
-	} catch (err) {
-		throw "Your web browser does not support WebGL!";
-	}
 	gl.clearColor(0.8, 0.8, 0.8, 1);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
-	var prog = shaderProgram(gl,
-		"attribute vec3 pos;"+
-		"void main() {"+
-		"	gl_Position = vec4(pos, 2.0);"+
-		"}",
-		"void main() {"+
-		"	gl_FragColor = vec4(0.5, 0.5, 1.0, 1.0);"+
-		"}"
-	);
 	gl.useProgram(prog);
 
 	attributeSetFloats(gl, prog, "pos", 3, [
@@ -75,18 +59,31 @@ function draw() {
 	window.requestAnimationFrame(draw);
 }
 
-function init() {
-/*
-declare shaders in own section
-compile them only once
-*/
+var gl;
+var prog;
 
+function init() {
 	try {
-		draw();
-	} catch (e) {
-		alert("Error: "+e);
+		gl = document.getElementById("webgl")
+			.getContext("experimental-webgl");
+		if (!gl) { throw "x"; }
+	} catch (err) {
+		alert("Your web browser does not support WebGL!");
 	}
+
+	prog = shaderProgram(gl,
+		"attribute vec3 pos;"+
+		"void main() {"+
+		"	gl_Position = vec4(pos, 2.0);"+
+		"}",
+		"void main() {"+
+		"	gl_FragColor = vec4(0.5, 0.5, 1.0, 1.0);"+
+		"}"
+	);
+
+	draw();
 }
+
 setTimeout(init, 100);
 
 </script>
