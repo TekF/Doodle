@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Not Shadertoy</title>
+
+*shaders*
+
+<script type="text/javascript">
+
+/* Get: custom resolution shadertoy-ish, bidirectional monte carlo, new header image (1500x500), read knobs, do walkways */
+
+// see if I can rig the "frame" loop to sub-frame times, so it can run as fast as possible in batches << 1/60th second
+
+var gl;
+var shaderA, targetA, textureA;
+var shaderFinal;
+
+function MakeShader( id, type )
+{
+	var shaderScript = document.getElementById(id);
+
+	// this doesn't really need a loop, does it?
+	var str = "";
+	var k = shaderScript.firstChild;
+	while (k)
+	{
+		if (k.nodeType == 3)
+			str += k.textContent;
+		k = k.nextSibling;
+	}
+
+	var shader = gl.createShader( type );
+	gl.shaderSource(shader, str);
+	gl.compileShader(shader);
+
+	if ( !gl.getShaderParameter(shader, gl.COMPILE_STATUS) )
+	{
+		// compile error
+		alert(gl.getShaderInfoLog(shader));
+		return null;
+	}
+
+	return shader;
+}
+
+
+function MakeEffect( vp_source, fp_source )
+{
+	var shader = gl.createProgram();
+	gl.attachShader( shader, MakeShader( vp_source, gl.VERTEX_SHADER ) );
+	gl.attachShader( shader, MakeShader( fp_source, gl.FRAGMENT_SHADER ) );
+	gl.linkProgram(shader);
+
+	if (!gl.getProgramParameter(sceneShader, gl.LINK_STATUS)) {
+		alert("Could not initialise shaders");
+	}
+
+	return shader;
+}
+
+
+var frame = 0;
+
+function Render()
+{
+    gl.viewport( 0, 0, canvas.width, canvas.height ); // offscreen buffers are at least this big, and we want to ignore any excess
+
+	// vertex setup - copy from scratch and (maybe) split into an init & a use
+
+//	gl.clearColor(0.0, 0.0, 0.0, 1.0); gl.clear(gl.COLOR_BUFFER_BIT); <- can just do this in the shader, for full control
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, targetA);
+	gl.useProgram(shaderA);
+
+	gl.uniform1f(gl.getUniformLocation(shaderA, "iFrame"), frame);
+
+	*bind this buffer as input too!* <- may need to double buffer, though technically not since 1:1
+
+	*actual draw call*
+	
+	
+	frame++; // todo: reset this when we need to redraw (for still renders => maybe have "iFrame" and "iFramesSinceInput" or "iPass"
+}
+
+
+function Initialise()
+{
+	try
+	{
+		var canvas = document.getElementById("gl-canvas");
+		gl = canvas.getContext("webgl"); // one of "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"
+		if (!gl) { throw "x"; }
+	}
+	catch (err)
+	{
+		alert("Your web browser does not support WebGL!");
+	}
+
+	shaderA = MakeEffect( "VPid", "ShaderA" );
+	shaderFinal = MakeEffect( "VPid", "FinalShader" );
+	
+	// setup render targets
+	gl.getExtension("OES_texture_float");
+	gl.getExtension("OES_texture_float_linear");
+	
+	// create & bind a frame buffer (target for rendering)
+	targetA = gl.createFramebuffer();
+	targetA.width = 2048; // todo: round up canvas dims
+	targetA.height = 512;
+	gl.bindFramebuffer(gl.FRAMEBUFFER, targetA);
+	
+	// create a render buffer (texture) and associate it with the bound frame buffer
+	textureA = gl.createRenderbuffer();
+	gl.bindRenderbuffer(gl.RENDERBUFFER, textureA);
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA32F, targetA.width, targetA.height);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, textureA);
+
+	// n.b. standford code used a render buffer for z-buffer (oops) and a texture for colour (innefficient)
+	
+	Render();
+}
+
+</script>
+	
+</head>
+<body onload="Initialise();">
+
+<canvas id="gl-canvas" style="border: none;" width="1500" height="500"></canvas>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Read MIDI Input</title>
+<script type="text/javascript">
+
+function Initialise()
+{
+	var midi, data;
+	// request MIDI access
+	if (navigator.requestMIDIAccess)
+	{
+		navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure);
+	}
+	else
+	{
+		alert("No MIDI support in your browser.");
+	}
+	
+	// dials
+	for( y = 0; y < 3; y++ )
+	{
+		var p = document.createElement("p");
+		document.body.appendChild(p);
+		for( x = 0; x < 8; x++ )
+		{
+			var idx = [16,20,24,28,46,50,54,58][x] + y;
+			var control = document.createElement("input");
+			control.type = "range";
+			control.id = idx.toString();
+			control.min = 0;
+			control.max = 127;
+			p.appendChild(control);
+		}
+	}
+	
+	// buttons
+	for( y = 0; y < 2; y++ )
+	{
+		var p = document.createElement("p");
+		document.body.appendChild(p);
+		for( x = 0; x < 8; x++ )
+		{
+			var idx = x*3+1+2*y;
+			var control = document.createElement("div");
+			control.id = "n"+idx.toString();
+			control.style.display = "inline-block";
+			control.style.margin = "2px";
+			control.style.width = "4em";
+			control.style.height = "1em";
+			control.style.backgroundColor = "#ddd";
+			p.appendChild(control);
+		}
+	}
+	
+	// sliders
+	var p = document.createElement("p");
+	document.body.appendChild(p);
+	for( x = 0; x < 9; x++ )
+	{
+		var idx = [16,20,24,28,46,50,54,58,59][x] + 3;
+		var control = document.createElement("input");
+		control.setAttribute( "type", "range" );
+		control.id = idx.toString();
+		control.min = 0;
+		control.max = 127;
+		p.appendChild(control);
+	}
+}
+
+// midi functions
+function onMIDISuccess(midiAccess) {
+    // when we get a succesful response, run this code
+    midi = midiAccess; // this is our raw MIDI data, inputs, outputs, and sysex status
+
+    var inputs = midi.inputs.values();
+    // loop over all available inputs and listen for any MIDI input
+    for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
+        // each time there is a midi message call the onMIDIMessage function
+        input.value.onmidimessage = onMIDIMessage;
+    }
+}
+
+function onMIDIFailure(error) {
+    // when we get a failed response, run this code
+    console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + error);
+}
+
+function onMIDIMessage(message) {
+    data = message.data; // this gives us our [command/channel, note, velocity] data.
+    //console.log('MIDI data', data); // MIDI data [144, 63, 73]
+
+	var press = false;
+	
+	switch( data[0] )
+	{
+		case 176:
+		{
+			var input = document.getElementById(data[1]);
+			
+			if ( input == null )
+			{
+				input = document.createElement("input");
+				input.setAttribute( "type", "range" );
+				input.setAttribute( "id", data[1].toString() );
+				input.min = 0;
+				input.max = 127;
+				document.body.appendChild(input);
+			}
+			
+			input.value = data[2];
+			input.style.backgroundColor = "#333";
+		}
+		break;
+
+		case 144: // press
+			press = true;
+		case 128: // release
+		{
+			var input = document.getElementById("n"+data[1]);
+
+			if ( input == null )
+			{
+/*				input = document.createElement("input");
+				input.setAttribute( "type", "button" );
+				input.setAttribute( "id", data[1].toString() );
+				document.body.appendChild(input);*/
+				input = document.createElement("div");
+				input.id = data[1].toString();
+				input.style.width = "4em";
+				input.style.height = "1em";
+				input.style.backgroundColor = "#ddd";
+				document.body.appendChild(input);
+			}
+			
+			input.style.backgroundColor = press ? "#555" : "#ddd";
+		}
+		break;
+	}
+}
+
+</script>
+</head>
+<body onload="Initialise();">
+</body>
+</html>
